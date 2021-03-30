@@ -1,0 +1,23 @@
+spring:
+  h2:
+    console:
+      enabled: true
+  config:
+    activate:
+      on-profile: test
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+logging:
+  level:
+    root: debug
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
+server:
+  servlet:
+    encoding:
+      charset: utf-8
+      force: true
