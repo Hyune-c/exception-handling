@@ -1,31 +1,32 @@
 package com.example.exceptionhandling.config.handler;
 
+import com.example.exceptionhandling.config.handler.exception.BusinessException;
+import com.example.exceptionhandling.config.handler.exception.PaymentException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.validation.ConstraintViolationException;
+import javax.validation.Path;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Getter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ErrorResponse {
 
-  private String code;
-  private String message;
-  private LocalDateTime time;
-  private List<FieldError> errors;
-  private UUID logId;
+  private final String code;
+  private final String message;
+  private final LocalDateTime time;
+  private final List<FieldError> errors;
+  private final UUID logId;
 
 
   public static ErrorResponse of(ErrorCode errorCode, BindingResult bindingResult, UUID logId) {
@@ -71,18 +72,33 @@ public class ErrorResponse {
 
   public static ErrorResponse of(ConstraintViolationException ex, UUID logId) {
     List<FieldError> errors = ex.getConstraintViolations().stream()
-        .map(violation ->
-            FieldError.of(getPropertyName(violation.getPropertyPath().toString()), null, violation.getMessage()))
+        .map(violation -> FieldError.of(extractPropertyName(violation.getPropertyPath()), null, violation.getMessage()))
         .collect(Collectors.toList());
     return ErrorResponse.of(ErrorCode.BAD_REQUEST, errors, logId);
   }
 
-  private static String getPropertyName(String propertyPath) {
-    return propertyPath.substring(propertyPath.lastIndexOf('.') + 1); // 전체 속성 경로에서 속성 이름만 가져옵니다.
+  public static ErrorResponse of(PaymentException ex, UUID logId) {
+    List<FieldError> errors = List.of(FieldError.of("orderId", ex.getOrderId(), null));
+    return ErrorResponse.of(ex.getErrorCode(), errors, logId);
+  }
+
+  public static ErrorResponse of(BusinessException ex, UUID logId) {
+    return ErrorResponse.of(ex.getErrorCode(), logId);
+  }
+
+  /**
+   * 속성 전체 경로에서 속성 이름만 가져옵니다.
+   *
+   * @param propertyPath 속성 전체 경로
+   * @return
+   */
+  private static String extractPropertyName(Path propertyPath) {
+    String pathString = propertyPath.toString();
+    return pathString.substring(pathString.lastIndexOf('.') + 1);
   }
 
   @Getter
-  @AllArgsConstructor(access = AccessLevel.PROTECTED)
+  @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class FieldError {
 
     private final String field;
@@ -94,7 +110,7 @@ public class ErrorResponse {
     }
 
     public static FieldError of(org.springframework.validation.FieldError fieldError) {
-      return FieldError.of(
+      return new FieldError(
           fieldError.getField(),
           (fieldError.getRejectedValue() == null) ? "" : fieldError.getRejectedValue().toString(),
           fieldError.getDefaultMessage());
