@@ -1,5 +1,11 @@
 package com.example.exceptionhandling.config.handler;
 
+import static com.example.exceptionhandling.config.handler.ErrorCode.BAD_REQUEST;
+import static com.example.exceptionhandling.config.handler.ErrorCode.FORBIDDEN;
+import static com.example.exceptionhandling.config.handler.ErrorCode.METHOD_NOT_ALLOWED;
+import static com.example.exceptionhandling.config.handler.ErrorCode.UNAUTHORIZED;
+import static com.example.exceptionhandling.config.handler.ErrorCode.UNKNOWN;
+
 import com.example.exceptionhandling.config.handler.exception.BusinessException;
 import com.example.exceptionhandling.config.handler.exception.PaymentException;
 import java.nio.file.AccessDeniedException;
@@ -30,7 +36,7 @@ public class ExceptionAdvice {
    */
   private UUID generateLogId(Exception ex) {
     UUID uuid = UUID.randomUUID();
-    log.error("### {}, {}", uuid.toString(), ex.getClass().getSimpleName(), ex);
+    log.error("### {}, {}", uuid, ex.getClass().getSimpleName(), ex);
     return uuid;
   }
 
@@ -43,7 +49,7 @@ public class ExceptionAdvice {
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
   @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
   protected ErrorResponse handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
-    return ErrorResponse.of(ErrorCode.METHOD_NOT_ALLOWED, generateLogId(ex));
+    return ErrorResponse.of(METHOD_NOT_ALLOWED, generateLogId(ex));
   }
 
   /**
@@ -55,7 +61,7 @@ public class ExceptionAdvice {
   @ExceptionHandler(BindException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   protected ErrorResponse handleBindException(BindException ex) {
-    return ErrorResponse.of(ErrorCode.BAD_REQUEST, ex.getBindingResult(), generateLogId(ex));
+    return ErrorResponse.of(BAD_REQUEST, ex.getBindingResult(), generateLogId(ex));
   }
 
   /**
@@ -67,7 +73,7 @@ public class ExceptionAdvice {
   @ExceptionHandler(AuthenticationException.class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   protected ErrorResponse handleAuthenticationException(AuthenticationException ex) {
-    return ErrorResponse.of(ErrorCode.UNAUTHORIZED, generateLogId(ex));
+    return ErrorResponse.of(UNAUTHORIZED, generateLogId(ex));
   }
 
   /**
@@ -111,7 +117,7 @@ public class ExceptionAdvice {
   @ExceptionHandler(IllegalArgumentException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   protected ErrorResponse handleIllegalArgumentException(IllegalArgumentException ex) {
-    return ErrorResponse.of(ErrorCode.BAD_REQUEST, generateLogId(ex));
+    return ErrorResponse.of(BAD_REQUEST, generateLogId(ex));
   }
 
   /**
@@ -125,7 +131,7 @@ public class ExceptionAdvice {
   @ExceptionHandler(MethodArgumentNotValidException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   protected ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-    return ErrorResponse.of(ErrorCode.BAD_REQUEST, ex.getBindingResult(), generateLogId(ex));
+    return ErrorResponse.of(BAD_REQUEST, ex.getBindingResult(), generateLogId(ex));
   }
 
   /**
@@ -137,7 +143,7 @@ public class ExceptionAdvice {
   @ExceptionHandler(AccessDeniedException.class)
   @ResponseStatus(HttpStatus.FORBIDDEN)
   protected ErrorResponse handleAccessDeniedException(AccessDeniedException ex) {
-    return ErrorResponse.of(ErrorCode.FORBIDDEN, generateLogId(ex));
+    return ErrorResponse.of(FORBIDDEN, generateLogId(ex));
   }
 
 
@@ -160,6 +166,6 @@ public class ExceptionAdvice {
   @ExceptionHandler(Exception.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   protected ErrorResponse handleException(Exception ex) {
-    return ErrorResponse.of(ErrorCode.UNKNOWN, generateLogId(ex));
+    return ErrorResponse.of(UNKNOWN, generateLogId(ex));
   }
 }
