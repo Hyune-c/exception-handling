@@ -4,6 +4,7 @@ import com.example.exceptionhandling.config.handler.exception.BusinessException;
 import com.example.exceptionhandling.config.handler.exception.PaymentException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,7 +28,6 @@ public class ErrorResponse {
   private final LocalDateTime time;
   private final List<FieldError> errors;
   private final UUID logId;
-
 
   public static ErrorResponse of(ErrorCode errorCode, BindingResult bindingResult, UUID logId) {
     return ErrorResponse.builder()
@@ -61,12 +61,12 @@ public class ErrorResponse {
 
   public static ErrorResponse of(MethodArgumentTypeMismatchException ex, UUID logId) {
     String value = (ex.getValue() == null) ? "" : ex.getValue().toString();
-    List<FieldError> errors = List.of(FieldError.of(ex.getName(), value, ex.getErrorCode()));
+    List<FieldError> errors = Collections.singletonList(FieldError.of(ex.getName(), value, ex.getErrorCode()));
     return ErrorResponse.of(ErrorCode.BAD_REQUEST, errors, logId);
   }
 
   public static ErrorResponse of(MissingServletRequestParameterException ex, UUID logId) {
-    List<FieldError> errors = List.of(FieldError.of(ex.getParameterName(), null, "Not exist"));
+    List<FieldError> errors = Collections.singletonList(FieldError.of(ex.getParameterName(), null, "Not exist"));
     return ErrorResponse.of(ErrorCode.BAD_REQUEST, errors, logId);
   }
 
@@ -78,7 +78,7 @@ public class ErrorResponse {
   }
 
   public static ErrorResponse of(PaymentException ex, UUID logId) {
-    List<FieldError> errors = List.of(FieldError.of("orderId", ex.getOrderId(), null));
+    List<FieldError> errors = Collections.singletonList(FieldError.of("orderId", ex.getOrderId(), null));
     return ErrorResponse.of(ex.getErrorCode(), errors, logId);
   }
 

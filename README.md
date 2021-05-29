@@ -1,6 +1,6 @@
 # 예외 처리 구현
 
-표준 예외 처리를 구현합니다.
+Java 8 기반, 표준 예외 처리를 구현합니다.
 
 - [x] 표준 예외 응답 객체 ErrorResponse
     - [ ] ErrorResponse or FieldError 에 Factory 도입
