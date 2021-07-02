@@ -1,4 +1,10 @@
-# 예외 처리 구현
+본 예제는 deprecate 되어 이관되었습니다.
+
+[예외 처리에서 로깅까지](https://github.com/Hyune-c/blog-code/tree/master/exception-logging)
+
+---
+
+# 표준 예외 처리
 
 Java 8 기반, 표준 예외 처리를 구현합니다.
 
